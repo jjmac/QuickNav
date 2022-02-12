@@ -94,17 +94,15 @@ namespace Rowlan.QuickNav
 
                     width = 60;
                     left = right + margin; right = left + width;
-                    if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), new GUIContent("Select")))
+                    if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), EditorGUIUtility.IconContent("d_SearchJump Icon", "Jump to Selection")))
                     {
-                        Debug.Log("Select");
-
                         currentSelectionHistoryIndex = index;
                         JumpToQuickNavItem();
                     }
 
                     width = 60;
                     left = right + margin; right = left + width;
-                    if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), new GUIContent("Favorite")))
+                    if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), EditorGUIUtility.IconContent("d_Favorite Icon", "Favorite")))
                     {
                         Debug.Log("Favorite");
                     }
