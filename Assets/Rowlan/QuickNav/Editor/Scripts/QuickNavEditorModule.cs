@@ -16,20 +16,28 @@ namespace Rowlan.QuickNav
 
         private SerializedObject serializedObject;
         private SerializedProperty serializedProperty;
+        private List<QuickNavItem> quickNavList;
 
         private int currentSelectionIndex = 0;
 
         private string headerText;
         private bool reorderEnabled;
 
-        public QuickNavEditorModule(QuickNavEditorWindow editorWindow, SerializedObject serializedObject, SerializedProperty serializedProperty, string headerText, bool reorderEnabled)
+        // TODO: use only the serializedProperty, don't hand over the quicknavlist
+        public QuickNavEditorModule(QuickNavEditorWindow editorWindow, SerializedObject serializedObject, SerializedProperty serializedProperty, List<QuickNavItem> quickNavList, string headerText, bool reorderEnabled)
         {
             this.editorWindow = editorWindow;
             this.serializedObject = serializedObject;
             this.serializedProperty = serializedProperty;
+            this.quickNavList = quickNavList;
 
             this.headerText = headerText;
             this.reorderEnabled = reorderEnabled;
+        }
+
+        private List<QuickNavItem> GetQuickNavItemList()
+        {
+            return quickNavList;
         }
 
         public void OnEnable()
@@ -116,7 +124,7 @@ namespace Rowlan.QuickNav
                     left = right + margin; right = left + width;
                     if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), EditorGUIUtility.IconContent("d_TreeEditor.Trash", "Delete")))
                     {
-                        editorWindow.quickNavData.history.RemoveAt(index);
+                        GetQuickNavItemList().RemoveAt(index);
                     }
 
                     /* instance id; not relevant to show for now
@@ -148,8 +156,8 @@ namespace Rowlan.QuickNav
                 if (GUILayout.Button(new GUIContent("<"), GUILayout.Width(80), GUILayout.Height(buttonHeight)))
                 {
                     currentSelectionIndex++;
-                    if (currentSelectionIndex >= editorWindow.quickNavData.history.Count - 1)
-                        currentSelectionIndex = editorWindow.quickNavData.history.Count - 1;
+                    if (currentSelectionIndex >= GetQuickNavItemList().Count - 1)
+                        currentSelectionIndex = GetQuickNavItemList().Count - 1;
 
                     if (currentSelectionIndex < 0)
                         currentSelectionIndex = 0;
@@ -172,7 +180,7 @@ namespace Rowlan.QuickNav
 
                 if (GUILayout.Button(new GUIContent("Clear"), GUILayout.Height(buttonHeight)))
                 {
-                    editorWindow.quickNavData.history.Clear();
+                    GetQuickNavItemList().Clear();
                     currentSelectionIndex = 0;
                 }
 
@@ -191,13 +199,13 @@ namespace Rowlan.QuickNav
 
         public QuickNavItem GetCurrentQuickNavItem()
         {
-            if (editorWindow.quickNavData.history.Count == 0)
+            if (GetQuickNavItemList().Count == 0)
                 return null;
 
-            if (currentSelectionIndex < 0 || currentSelectionIndex >= editorWindow.quickNavData.history.Count)
+            if (currentSelectionIndex < 0 || currentSelectionIndex >= GetQuickNavItemList().Count)
                 return null;
 
-            QuickNavItem quickNavItem = editorWindow.quickNavData.history[currentSelectionIndex];
+            QuickNavItem quickNavItem = GetQuickNavItemList()[currentSelectionIndex];
 
             return quickNavItem;
         }
