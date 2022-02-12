@@ -99,7 +99,7 @@ namespace Rowlan.QuickNav
             // this would be the case for the jump function
             if (Selection.instanceIDs.Length == 1)
             {
-                QuickNavItem quickNavItem = historyModule.GetCurrentHistoryQuickNavItem();
+                QuickNavItem quickNavItem = historyModule.GetCurrentQuickNavItem();
                 if (quickNavItem != null)
                 {
                     if (quickNavItem.instanceId == Selection.instanceIDs[0])

@@ -11,28 +11,22 @@ namespace Rowlan.QuickNav
 
         private QuickNavEditorWindow editorWindow;
 
-        private ReorderableList selectionHistoryReorderableList;
+        private ReorderableList reorderableList;
+        private Vector2 reorderableListScrollPosition;
 
         private SerializedObject serializedObject;
-        private SerializedProperty historyProperty;
+        private SerializedProperty serializedProperty;
 
-
-        /// <summary>
-        /// Current index of the <see cref="selectionHistory"/> at which the user navigates.
-        /// </summary>
-        private int currentSelectionHistoryIndex = 0;
+        private int currentSelectionIndex = 0;
 
         private string headerText;
         private bool reorderEnabled;
 
-
-        private Vector2 historyScrollPosition;
-
-        public QuickNavEditorModule(QuickNavEditorWindow editorWindow, SerializedObject serializedObject, SerializedProperty historyProperty, string headerText, bool reorderEnabled)
+        public QuickNavEditorModule(QuickNavEditorWindow editorWindow, SerializedObject serializedObject, SerializedProperty serializedProperty, string headerText, bool reorderEnabled)
         {
             this.editorWindow = editorWindow;
             this.serializedObject = serializedObject;
-            this.historyProperty = historyProperty;
+            this.serializedProperty = serializedProperty;
 
             this.headerText = headerText;
             this.reorderEnabled = reorderEnabled;
@@ -42,7 +36,7 @@ namespace Rowlan.QuickNav
         {
 
             // initialize UI components
-            selectionHistoryReorderableList = new ReorderableList(serializedObject, historyProperty)
+            reorderableList = new ReorderableList(serializedObject, serializedProperty)
             {
                 draggable = reorderEnabled,
                 displayAdd = false,
@@ -57,7 +51,7 @@ namespace Rowlan.QuickNav
                 drawElementCallback = (rect, index, active, focused) =>
                 {
                     // Get the currently to be drawn element from YourList
-                    var element = historyProperty.GetArrayElementAtIndex(index);
+                    var element = serializedProperty.GetArrayElementAtIndex(index);
 
                     var instanceIdProperty = element.FindPropertyRelative("instanceId");
                     var nameProperty = element.FindPropertyRelative("name");
@@ -80,7 +74,7 @@ namespace Rowlan.QuickNav
                     left = right + margin; right = left + width;
                     if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), EditorGUIUtility.IconContent("d_SearchJump Icon", "Jump to Selection")))
                     {
-                        currentSelectionHistoryIndex = index;
+                        currentSelectionIndex = index;
                         JumpToQuickNavItem();
                     }
 
@@ -153,21 +147,21 @@ namespace Rowlan.QuickNav
             {
                 if (GUILayout.Button(new GUIContent("<"), GUILayout.Width(80), GUILayout.Height(buttonHeight)))
                 {
-                    currentSelectionHistoryIndex++;
-                    if (currentSelectionHistoryIndex >= editorWindow.quickNavData.history.Count - 1)
-                        currentSelectionHistoryIndex = editorWindow.quickNavData.history.Count - 1;
+                    currentSelectionIndex++;
+                    if (currentSelectionIndex >= editorWindow.quickNavData.history.Count - 1)
+                        currentSelectionIndex = editorWindow.quickNavData.history.Count - 1;
 
-                    if (currentSelectionHistoryIndex < 0)
-                        currentSelectionHistoryIndex = 0;
+                    if (currentSelectionIndex < 0)
+                        currentSelectionIndex = 0;
 
                     JumpToQuickNavItem();
                 }
 
                 if (GUILayout.Button(new GUIContent(">"), GUILayout.Width(80), GUILayout.Height(buttonHeight)))
                 {
-                    currentSelectionHistoryIndex--;
-                    if (currentSelectionHistoryIndex < 0)
-                        currentSelectionHistoryIndex = 0;
+                    currentSelectionIndex--;
+                    if (currentSelectionIndex < 0)
+                        currentSelectionIndex = 0;
 
                     JumpToQuickNavItem();
 
@@ -179,7 +173,7 @@ namespace Rowlan.QuickNav
                 if (GUILayout.Button(new GUIContent("Clear"), GUILayout.Height(buttonHeight)))
                 {
                     editorWindow.quickNavData.history.Clear();
-                    currentSelectionHistoryIndex = 0;
+                    currentSelectionIndex = 0;
                 }
 
             }
@@ -188,22 +182,22 @@ namespace Rowlan.QuickNav
             GUILayout.Space(6);
 
             // show history list
-            historyScrollPosition = EditorGUILayout.BeginScrollView(historyScrollPosition, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            reorderableListScrollPosition = EditorGUILayout.BeginScrollView(reorderableListScrollPosition, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             {
-                selectionHistoryReorderableList.DoLayoutList();
+                reorderableList.DoLayoutList();
             }
             EditorGUILayout.EndScrollView();
         }
 
-        public QuickNavItem GetCurrentHistoryQuickNavItem()
+        public QuickNavItem GetCurrentQuickNavItem()
         {
             if (editorWindow.quickNavData.history.Count == 0)
                 return null;
 
-            if (currentSelectionHistoryIndex < 0 || currentSelectionHistoryIndex >= editorWindow.quickNavData.history.Count)
+            if (currentSelectionIndex < 0 || currentSelectionIndex >= editorWindow.quickNavData.history.Count)
                 return null;
 
-            QuickNavItem quickNavItem = editorWindow.quickNavData.history[currentSelectionHistoryIndex];
+            QuickNavItem quickNavItem = editorWindow.quickNavData.history[currentSelectionIndex];
 
             return quickNavItem;
         }
@@ -213,13 +207,13 @@ namespace Rowlan.QuickNav
         /// </summary>
         void JumpToQuickNavItem()
         {
-            QuickNavItem quickNavItem = GetCurrentHistoryQuickNavItem();
+            QuickNavItem quickNavItem = GetCurrentQuickNavItem();
 
             if (quickNavItem == null)
                 return;
 
             // select in reorderable list
-            selectionHistoryReorderableList.Select(currentSelectionHistoryIndex);
+            reorderableList.Select(currentSelectionIndex);
 
             // selection objects
             UnityEngine.Object[] objects = new UnityEngine.Object[] { EditorUtility.InstanceIDToObject(quickNavItem.instanceId) };
