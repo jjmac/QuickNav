@@ -40,11 +40,13 @@ namespace Rowlan.QuickNav
 
         #endregion Internal data
 
-        #region UI components
+        #region UI related
 
         private ReorderableList selectionHistoryReorderableList;
 
-        #endregion UI components
+        private Vector2 historyScrollPosition;
+
+        #endregion UI related
 
         void OnEnable()
         {
@@ -99,7 +101,7 @@ namespace Rowlan.QuickNav
 
                     // object name
                     // textfield is stretched => calculate it from total length - left position - all the buttons to the right - number of margins ... and the fixed number is just arbitrary
-                    width = EditorGUIUtility.currentViewWidth - (right + margin) - jumpButtonWidth - favoriteButtonWidth - margin * 3 - 14; 
+                    width = EditorGUIUtility.currentViewWidth - (right + margin) - jumpButtonWidth - favoriteButtonWidth - margin * 3 - 22; 
                     left = right + margin; right = left + width;
                     EditorGUI.PropertyField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), nameProperty, GUIContent.none);
                     
@@ -229,7 +231,11 @@ namespace Rowlan.QuickNav
             GUILayout.Space(6);
 
             // show history list
-            selectionHistoryReorderableList.DoLayoutList();
+            historyScrollPosition = EditorGUILayout.BeginScrollView(historyScrollPosition, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            {
+                selectionHistoryReorderableList.DoLayoutList();
+            }
+            EditorGUILayout.EndScrollView();
 
             serializedObject.ApplyModifiedProperties();
         }
