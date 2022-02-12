@@ -84,6 +84,7 @@ namespace Rowlan.QuickNav
                     float width = 0;
                     float right = 0;
 
+                    float objectIconWidth = 16;
                     float jumpButtonWidth = 30;
                     float favoriteButtonWidth = 30;
                     float deleteButtonWidth = 30;
@@ -98,6 +99,23 @@ namespace Rowlan.QuickNav
                         currentSelectionHistoryIndex = index;
                         JumpToQuickNavItem();
                     }
+
+                    // icon
+                    width = objectIconWidth;
+                    left = right + margin; right = left + width;
+                    
+                    // get the object
+                    UnityEngine.Object currentObject = EditorUtility.InstanceIDToObject(instanceIdProperty.intValue);
+
+                    // get icon for object
+                    EditorGUIUtility.GetIconForObject(currentObject);
+
+                    // create guicontent, but remove the text; we only want the icon
+                    GUIContent gc = EditorGUIUtility.ObjectContent(currentObject, typeof(object));
+                    gc.text = null;
+
+                    // show icon
+                    EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), gc);
 
                     // object name
                     // textfield is stretched => calculate it from total length - left position - all the buttons to the right - number of margins ... and the fixed number is just arbitrary
