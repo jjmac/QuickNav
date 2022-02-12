@@ -78,21 +78,18 @@ namespace Rowlan.QuickNav
 
                     float margin = 3;
 
-                    float left;
-                    float width;
-                    float right;
+                    float left = 0;
+                    float width = 0;
+                    float right = 0;
+
+                    float jumpButtonWidth = 30;
+                    float favoriteButtonWidth = 30;
+                    float deleteButtonWidth = 30;
 
                     // EditorGUI.PropertyField(new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight), instanceIdProperty, GUIContent.none);
 
-                    width = 50; 
-                    left = 0; right = left + width;
-                    EditorGUI.PropertyField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), instanceIdProperty, GUIContent.none);
-
-                    width = 200; 
-                    left = right + margin; right = left + width;
-                    EditorGUI.PropertyField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), nameProperty, GUIContent.none);
-
-                    width = 60;
+                    // jump button
+                    width = jumpButtonWidth;
                     left = right + margin; right = left + width;
                     if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), EditorGUIUtility.IconContent("d_SearchJump Icon", "Jump to Selection")))
                     {
@@ -100,12 +97,37 @@ namespace Rowlan.QuickNav
                         JumpToQuickNavItem();
                     }
 
-                    width = 60;
+                    // object name
+                    // textfield is stretched => calculate it from total length - left position - all the buttons to the right - number of margins ... and the fixed number is just arbitrary
+                    width = EditorGUIUtility.currentViewWidth - (right + margin) - jumpButtonWidth - favoriteButtonWidth - margin * 3 - 14; 
+                    left = right + margin; right = left + width;
+                    EditorGUI.PropertyField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), nameProperty, GUIContent.none);
+                    
+                    // favorite button
+                    width = favoriteButtonWidth;
                     left = right + margin; right = left + width;
                     if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), EditorGUIUtility.IconContent("d_Favorite Icon", "Favorite")))
                     {
                         Debug.Log("Favorite");
                     }
+
+                    // delete button
+                    width = deleteButtonWidth;
+                    left = right + margin; right = left + width;
+                    if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), EditorGUIUtility.IconContent("d_TreeEditor.Trash", "Delete")))
+                    {
+                        selectionHistory.RemoveAt(index);
+                    }
+
+                    /* instance id; not relevant to show for now
+                    width = 50;
+                    left = right + margin; right = left + width;
+                    EditorGUI.BeginDisabledGroup(true);
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), instanceIdProperty, GUIContent.none);
+                    }
+                    EditorGUI.EndDisabledGroup();
+                    */
 
                     // advance to next line for the next property
                     rect.y += EditorGUIUtility.singleLineHeight;
