@@ -8,5 +8,7 @@ namespace Rowlan.QuickNav
     {
         public List<QuickNavItem> history = new List<QuickNavItem>();
 
+        public List<QuickNavItem> favorites = new List<QuickNavItem>();
+
     }
 }
