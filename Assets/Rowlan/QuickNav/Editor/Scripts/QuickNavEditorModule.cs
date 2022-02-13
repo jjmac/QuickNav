@@ -37,6 +37,8 @@ namespace Rowlan.QuickNav
         private GUIContent jumpIcon;
         private GUIContent favoriteIcon;
         private GUIContent deleteIcon;
+        private GUIContent clearIcon;
+
 
         // TODO: use only the serializedProperty, don't hand over the quicknavlist
         public QuickNavEditorModule(QuickNavEditorWindow editorWindow, SerializedObject serializedObject, SerializedProperty serializedProperty, List<QuickNavItem> quickNavList, NavigationDirection navigationDirection)
@@ -48,28 +50,50 @@ namespace Rowlan.QuickNav
 
             this.navigationDirection = navigationDirection;
 
-            // icons
+            // setup styles, icons etc
+            SetupStyles();
+        }
 
+        /// <summary>
+        /// Setup styles, icons, etc
+        /// </summary>
+        private void SetupStyles()
+        {
             switch (navigationDirection)
             {
                 case NavigationDirection.LeftRight:
                     previousIcon = EditorGUIUtility.IconContent("d_scrollleft_uielements@2x", "Previous");
+                    previousIcon.tooltip = "Jump to Previous";
+
                     nextIcon = EditorGUIUtility.IconContent("d_scrollright_uielements@2x", "Next");
+                    nextIcon.tooltip = "Jump to Next";
                     break;
 
                 case NavigationDirection.UpDown:
                     previousIcon = EditorGUIUtility.IconContent("d_ProfilerTimelineDigDownArrow@2x", "Previous");
+                    previousIcon.tooltip = "Jump to Previous";
+
                     nextIcon = EditorGUIUtility.IconContent("d_ProfilerTimelineRollUpArrow@2x", "Next");
+                    nextIcon.tooltip = "Jump to Next";
                     break;
 
+                default: throw new System.Exception($"Unsupported direction: {navigationDirection}");
             }
-            
+
             addIcon = EditorGUIUtility.IconContent("d_Toolbar Plus@2x", "Add Selected");
+            addIcon.tooltip = "Add Selection to Favorites";
 
             jumpIcon = EditorGUIUtility.IconContent("d_SearchJump Icon", "Jump to Selection");
-            favoriteIcon = EditorGUIUtility.IconContent("d_Favorite Icon", "Favorite");
-            deleteIcon = EditorGUIUtility.IconContent("d_TreeEditor.Trash", "Delete");
+            jumpIcon.tooltip = "Jump to Selection";
 
+            favoriteIcon = EditorGUIUtility.IconContent("d_Favorite Icon", "Favorite");
+            favoriteIcon.tooltip = "Add to Favorites";
+
+            deleteIcon = EditorGUIUtility.IconContent("d_TreeEditor.Trash", "Delete");
+            deleteIcon.tooltip = "Delete";
+
+            clearIcon = new GUIContent("Clear");
+            clearIcon.tooltip = "Remove all items";
         }
 
         private List<QuickNavItem> GetQuickNavItemList()
@@ -225,7 +249,7 @@ namespace Rowlan.QuickNav
 
                 }
 
-                if (GUILayout.Button(new GUIContent("Clear"), GUILayout.Height(buttonHeight)))
+                if (GUILayout.Button(clearIcon, GUILayout.Height(buttonHeight)))
                 {
                     GetQuickNavItemList().Clear();
                     currentSelectionIndex = 0;
