@@ -43,21 +43,21 @@ namespace Rowlan.QuickNav
 
             // history
             SerializedProperty historyProperty = serializedObject.FindProperty("quickNavData.history");
-            historyModule = new QuickNavEditorModule(this, serializedObject, historyProperty, editorWindow.quickNavData.history)
+            historyModule = new QuickNavEditorModule(this, serializedObject, historyProperty, editorWindow.quickNavData.history, QuickNavEditorModule.NavigationDirection.LeftRight)
             {
                 headerText = "History",
                 reorderEnabled = false,
-                addSelectedEnabled = false
+                addSelectedEnabled = false,
             };
             historyModule.OnEnable();
 
             // favorites
             SerializedProperty favoritesProperty = serializedObject.FindProperty("quickNavData.favorites");
-            favoritesModule = new QuickNavEditorModule(this, serializedObject, favoritesProperty, editorWindow.quickNavData.favorites)
+            favoritesModule = new QuickNavEditorModule(this, serializedObject, favoritesProperty, editorWindow.quickNavData.favorites, QuickNavEditorModule.NavigationDirection.UpDown)
             {
                 headerText = "Favorites",
                 reorderEnabled = true,
-                addSelectedEnabled = true
+                addSelectedEnabled = true,
             };
             favoritesModule.OnEnable();
 
