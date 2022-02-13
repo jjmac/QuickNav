@@ -171,14 +171,23 @@ namespace Rowlan.QuickNav
                     EditorGUI.PropertyField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), nameProperty, GUIContent.none);
 
                     // favorite button
-                    width = favoriteButtonWidth;
-                    left = right + margin; right = left + width;
-                    if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), favoriteIcon))
-                    {
-                        QuickNavItem navItem = new QuickNavItem() { instanceId = instanceIdProperty.intValue, name = nameProperty.stringValue };
+                    bool isFavoritesItem = editorWindow.quickNavData.IsFavoritesItem(element.boxedValue as QuickNavItem);
 
-                        editorWindow.AddToFavorites( navItem);
+                    bool guiEnabledPrev = GUI.enabled;
+                    {
+                        // disable the button in case it is already a favorite
+                        GUI.enabled = !isFavoritesItem;
+
+                        width = favoriteButtonWidth;
+                        left = right + margin; right = left + width;
+                        if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), favoriteIcon))
+                        {
+                            QuickNavItem navItem = new QuickNavItem() { instanceId = instanceIdProperty.intValue, name = nameProperty.stringValue };
+
+                            editorWindow.AddToFavorites(navItem);
+                        }
                     }
+                    GUI.enabled = guiEnabledPrev;
 
                     // delete button
                     width = deleteButtonWidth;
