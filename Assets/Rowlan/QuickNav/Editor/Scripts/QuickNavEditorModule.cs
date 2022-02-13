@@ -153,9 +153,6 @@ namespace Rowlan.QuickNav
                     // get the object
                     UnityEngine.Object currentObject = EditorUtility.InstanceIDToObject(instanceIdProperty.intValue);
 
-                    // get icon for object
-                    EditorGUIUtility.GetIconForObject(currentObject);
-
                     // create guicontent, but remove the text; we only want the icon
                     GUIContent gc = EditorGUIUtility.ObjectContent(currentObject, typeof(object));
                     gc.text = null;
