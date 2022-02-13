@@ -43,12 +43,22 @@ namespace Rowlan.QuickNav
 
             // history
             SerializedProperty historyProperty = serializedObject.FindProperty("quickNavData.history");
-            historyModule = new QuickNavEditorModule( this, serializedObject, historyProperty, editorWindow.quickNavData.history, "History", false);
+            historyModule = new QuickNavEditorModule(this, serializedObject, historyProperty, editorWindow.quickNavData.history)
+            {
+                headerText = "History",
+                reorderEnabled = false,
+                addSelectedEnabled = false
+            };
             historyModule.OnEnable();
 
             // favorites
             SerializedProperty favoritesProperty = serializedObject.FindProperty("quickNavData.favorites");
-            favoritesModule = new QuickNavEditorModule(this, serializedObject, favoritesProperty, editorWindow.quickNavData.favorites, "Favorites", true);
+            favoritesModule = new QuickNavEditorModule(this, serializedObject, favoritesProperty, editorWindow.quickNavData.favorites)
+            {
+                headerText = "Favorites",
+                reorderEnabled = true,
+                addSelectedEnabled = true
+            };
             favoritesModule.OnEnable();
 
             quickNavTabs = new GUIContent[]
@@ -118,16 +128,33 @@ namespace Rowlan.QuickNav
             {
                 int selectedInstanceId = Selection.instanceIDs[0];
 
-                // get the object from the selection
-                // we could use Selection.objects as well, but this way it's more general purpose in case we persist a list later (eg favorites)
-                UnityEngine.Object selectedObject = EditorUtility.InstanceIDToObject(selectedInstanceId);
-
-                QuickNavItem navItem = new QuickNavItem() { instanceId = selectedInstanceId, name = selectedObject.name };
+                QuickNavItem navItem = CreateQuickNavItem(selectedInstanceId);
 
                 // insert new items first
                 quickNavData.history.Insert(0, navItem);
             }
 
+        }
+
+        public void AddSelectedToFavorites()
+        {
+            foreach( int instanceId in Selection.instanceIDs)
+            {
+                QuickNavItem navItem = CreateQuickNavItem(instanceId);
+
+                quickNavData.favorites.Add( navItem);
+            }
+        }
+
+        public QuickNavItem CreateQuickNavItem( int instanceId)
+        {
+            // get the object from the selection
+            // we could use Selection.objects as well, but this way it's more general purpose in case we persist a list later (eg favorites)
+            UnityEngine.Object selectedObject = EditorUtility.InstanceIDToObject(instanceId);
+
+            QuickNavItem navItem = new QuickNavItem() { instanceId = instanceId, name = selectedObject.name };
+
+            return navItem;
         }
 
         public void AddToFavorites( QuickNavItem quickNavItem)

@@ -20,19 +20,17 @@ namespace Rowlan.QuickNav
 
         private int currentSelectionIndex = 0;
 
-        private string headerText;
-        private bool reorderEnabled;
+        public string headerText = "";
+        public bool reorderEnabled = false;
+        public bool addSelectedEnabled = false;
 
         // TODO: use only the serializedProperty, don't hand over the quicknavlist
-        public QuickNavEditorModule(QuickNavEditorWindow editorWindow, SerializedObject serializedObject, SerializedProperty serializedProperty, List<QuickNavItem> quickNavList, string headerText, bool reorderEnabled)
+        public QuickNavEditorModule(QuickNavEditorWindow editorWindow, SerializedObject serializedObject, SerializedProperty serializedProperty, List<QuickNavItem> quickNavList)
         {
             this.editorWindow = editorWindow;
             this.serializedObject = serializedObject;
             this.serializedProperty = serializedProperty;
             this.quickNavList = quickNavList;
-
-            this.headerText = headerText;
-            this.reorderEnabled = reorderEnabled;
         }
 
         private List<QuickNavItem> GetQuickNavItemList()
@@ -177,6 +175,16 @@ namespace Rowlan.QuickNav
                 }
 
                 GUILayout.FlexibleSpace();
+
+                if(addSelectedEnabled)
+                {
+
+                    if (GUILayout.Button(new GUIContent("+"), GUILayout.Width(60), GUILayout.Height(buttonHeight)))
+                    {
+                        editorWindow.AddSelectedToFavorites();
+                    }
+
+                }
 
                 if (GUILayout.Button(new GUIContent("Clear"), GUILayout.Height(buttonHeight)))
                 {
