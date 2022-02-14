@@ -16,9 +16,15 @@ namespace Rowlan.QuickNav
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public bool IsFavoritesItem( QuickNavItem item)
+        public bool IsFavoritesItem( int instanceId)
         {
-            return favorites.Contains(item);
+            foreach( QuickNavItem currentItem in favorites)
+            {
+                if (currentItem.instanceId == instanceId)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

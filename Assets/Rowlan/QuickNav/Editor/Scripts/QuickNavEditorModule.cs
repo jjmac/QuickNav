@@ -82,7 +82,8 @@ namespace Rowlan.QuickNav
             addIcon = EditorGUIUtility.IconContent("d_Toolbar Plus@2x", "Add Selected");
             addIcon.tooltip = "Add Selection to Favorites";
 
-            jumpIcon = EditorGUIUtility.IconContent("d_SearchJump Icon", "Jump to Selection");
+            // jumpIcon = EditorGUIUtility.IconContent("d_SearchJump Icon", "Jump to Selection");
+            jumpIcon = EditorGUIUtility.IconContent("d_search_icon@2x", "Jump to Selection");
             jumpIcon.tooltip = "Jump to Selection";
 
             favoriteIcon = EditorGUIUtility.IconContent("d_Favorite Icon", "Favorite");
@@ -167,7 +168,7 @@ namespace Rowlan.QuickNav
                     EditorGUI.PropertyField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), nameProperty, GUIContent.none);
 
                     // favorite button
-                    bool isFavoritesItem = editorWindow.quickNavData.IsFavoritesItem(element.boxedValue as QuickNavItem);
+                    bool isFavoritesItem = editorWindow.quickNavData.IsFavoritesItem( instanceIdProperty.intValue);
 
                     bool guiEnabledPrev = GUI.enabled;
                     {
@@ -297,7 +298,8 @@ namespace Rowlan.QuickNav
                 return;
 
             // select in reorderable list
-            reorderableList.Select(currentSelectionIndex);
+            reorderableList.index = currentSelectionIndex;
+            //reorderableList.Select(currentSelectionIndex);
 
             // selection objects
             UnityEngine.Object[] objects = new UnityEngine.Object[] { EditorUtility.InstanceIDToObject(quickNavItem.instanceId) };
