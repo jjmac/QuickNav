@@ -1,4 +1,4 @@
-# QuickNav
+# QuickNav - History's Favorites
 
-Quick Navigation in the Unity Editor for Unity 2020.3+.
+Quick Navigation via History and Favorites in the Unity Editor for Unity 2020.3+.
 
