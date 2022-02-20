@@ -12,6 +12,7 @@ TODO
 * load favorites by filter
 * textfield should be selectable, but not editable
 * n-th mouse buttons for prev/next navigation like in web browser
+* Game objects have new InstanceIDs in a new Unity session
 
 --------------------------
 Ideas

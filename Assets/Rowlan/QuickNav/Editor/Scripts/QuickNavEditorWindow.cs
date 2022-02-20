@@ -40,8 +40,22 @@ namespace Rowlan.QuickNav
             scriptableObject = this;
             serializedObject = new SerializedObject(scriptableObject);
 
-            // history
+            // properties
             SerializedProperty historyProperty = serializedObject.FindProperty("quickNavData.history");
+            SerializedProperty favoritesProperty = serializedObject.FindProperty("quickNavData.favorites");
+
+            // unity startup, first access
+            if( !Startup.Instance.Initialized)
+            {
+                // clear history at startup
+                quickNavData.history.Clear();
+
+                serializedObject.Update();
+            }
+
+            #region Modules
+
+            // history
             historyModule = new QuickNavEditorModule(this, serializedObject, historyProperty, editorWindow.quickNavData.history, QuickNavEditorModule.NavigationDirection.LeftRight)
             {
                 headerText = "History",
@@ -51,7 +65,6 @@ namespace Rowlan.QuickNav
             historyModule.OnEnable();
 
             // favorites
-            SerializedProperty favoritesProperty = serializedObject.FindProperty("quickNavData.favorites");
             favoritesModule = new QuickNavEditorModule(this, serializedObject, favoritesProperty, editorWindow.quickNavData.favorites, QuickNavEditorModule.NavigationDirection.UpDown)
             {
                 headerText = "Favorites",
@@ -59,6 +72,8 @@ namespace Rowlan.QuickNav
                 addSelectedEnabled = true,
             };
             favoritesModule.OnEnable();
+
+            #endregion Modules
 
             quickNavTabs = new GUIContent[]
             {
@@ -68,6 +83,8 @@ namespace Rowlan.QuickNav
 
             // initialize selection
             OnSelectionChange();
+
+            Startup.Instance.Initialized = true;
         }
 
 
