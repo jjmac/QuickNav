@@ -153,6 +153,9 @@ namespace Rowlan.QuickNav
         /// </summary>
         private void OnSelectionChange()
         {
+            if (Selection.objects.Length == 0)
+                return;
+
             // skip adding to history if the new selected one is the current selected one;
             // this would be the case for the jump function
             if (Selection.instanceIDs.Length == 1)
