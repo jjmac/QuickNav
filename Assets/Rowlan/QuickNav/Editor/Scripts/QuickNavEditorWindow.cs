@@ -176,10 +176,12 @@ namespace Rowlan.QuickNav
                 }
             }
 
+            int itemsMax = quickNavData.historyItemsMax;
+
             // ensure collection doesn't exceed max size
-            if (quickNavData.history.Count >= QuickNavData.LIST_ITEMS_MAX)
+            if (quickNavData.history.Count >= itemsMax)
             {
-                quickNavData.history.RemoveRange(QuickNavData.LIST_ITEMS_MAX - 1, quickNavData.history.Count - QuickNavData.LIST_ITEMS_MAX + 1);
+                quickNavData.history.RemoveRange(itemsMax - 1, quickNavData.history.Count - itemsMax + 1);
             }
 
             // single item selection / navigation => add to history

@@ -8,12 +8,18 @@ namespace Rowlan.QuickNav
     public class QuickNavData : ScriptableObject
     {
         /// <summary>
-        /// Maximum number of items in either of the lists
+        /// Maximum number of items in the history list
         /// </summary>
-        public const int LIST_ITEMS_MAX = 20;
+        public int historyItemsMax = 20;
 
+        /// <summary>
+        /// The history list
+        /// </summary>
         public List<QuickNavItem> history;
 
+        /// <summary>
+        /// The favorites list
+        /// </summary>
         public List<QuickNavItem> favorites;
 
         /// <summary>
