@@ -132,7 +132,7 @@ namespace Rowlan.QuickNav
         {
             serializedObject.Update();
 
-            selectedQuickNavTabIndex = GUILayout.Toolbar(selectedQuickNavTabIndex, quickNavTabs);
+            selectedQuickNavTabIndex = GUILayout.Toolbar(selectedQuickNavTabIndex, quickNavTabs, GUILayout.Height(20));
 
             switch(selectedQuickNavTabIndex)
             {
