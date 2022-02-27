@@ -71,10 +71,19 @@ namespace Rowlan.QuickNav
             // unity startup, first access
             if ( !Startup.Instance.Initialized)
             {
-                // clear history at startup
-                quickNavData.history.Clear();
+                // check startup or play mode: don't do anything when the user switches to play mode in the editor
+                bool isUnityStartup = EditorApplication.isPlayingOrWillChangePlaymode == false;
 
-                serializedObject.Update();
+                if (isUnityStartup)
+                {
+                    // Debug.Log("Startup: Clearing history");
+
+                    // clear history at startup
+                    quickNavData.history.Clear();
+
+                    EditorUtility.SetDirty(quickNavData);
+                    //serializedObject.Update();
+                }
             }
 
             #region Modules
