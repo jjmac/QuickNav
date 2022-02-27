@@ -46,5 +46,16 @@ namespace Rowlan.QuickNav
         {
             // Debug.Log( "OnValidate " + Time.time);
         }
+
+        /// <summary>
+        /// Get the unity object using the object guid and assign it.
+        /// This may become necessary e. g. after a restart of the unity editor.
+        /// In that case the unity object could be lost, but using the object guid we can restore it.
+        /// </summary>
+        public void Refresh()
+        {
+            history.ForEach(x => x.Refresh());
+            favorites.ForEach(x => x.Refresh());
+        }
     }
 }

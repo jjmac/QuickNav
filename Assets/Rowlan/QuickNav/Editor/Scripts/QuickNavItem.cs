@@ -42,5 +42,29 @@ namespace Rowlan.QuickNav
             objectGuid = globalObjectId.ToString();
         }
 
+        /// <summary>
+        /// Get the unity object using the object guid and assign it.
+        /// This may become necessary e. g. after a restart of the unity editor.
+        /// In that case the unity object could be lost, but using the object guid we can restore it.
+        /// </summary>
+        public void Refresh()
+        {
+            if (objectGuid == null)
+                return;
+
+            GlobalObjectId id;
+            if (!GlobalObjectId.TryParse( objectGuid, out id))
+            {
+                Debug.Log("obj is null for " + objectGuid);
+                return;
+            }
+
+            UnityEngine.Object parsedObject = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id);
+
+            if (parsedObject == null)
+                return;
+
+            unityObject = parsedObject;
+        }
     }
 }

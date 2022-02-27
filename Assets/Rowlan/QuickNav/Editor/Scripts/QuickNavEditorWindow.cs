@@ -42,25 +42,9 @@ namespace Rowlan.QuickNav
             ScriptableObjectManager<QuickNavData> settingsManager = new ScriptableObjectManager<QuickNavData>(ProjectSetup.SETTINGS_FOLDER, ProjectSetup.SETTINGS_FILENAME);
             quickNavData = settingsManager.GetAsset();
 
-            foreach (QuickNavItem qi in quickNavData.favorites)
-            {
-                if (qi.objectGuid == null)
-                    continue;
-
-                GlobalObjectId id;
-                if (!GlobalObjectId.TryParse(qi.objectGuid, out id))
-                {
-                    Debug.Log("obj is null for " + qi.objectGuid);
-                    continue;
-                }
-
-                Object obj = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id);
-
-                if (obj == null)
-                    continue;
-
-                qi.unityObject = obj;
-            }
+            // update history and favorites using the object guid
+            // this may become necessary after a restart of the editor
+            quickNavData.Refresh();
 
             serializedObject = new SerializedObject(quickNavData);
 
