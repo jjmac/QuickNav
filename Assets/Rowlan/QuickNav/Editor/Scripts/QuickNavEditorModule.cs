@@ -33,6 +33,7 @@ namespace Rowlan.QuickNav
         private GUIContent nextIcon;
         private GUIContent addIcon;
 
+        private GUIContent pingIcon;
         private GUIContent jumpIcon;
         private GUIContent favoriteIcon;
         private GUIContent deleteIcon;
@@ -85,8 +86,11 @@ namespace Rowlan.QuickNav
             addIcon = EditorGUIUtility.IconContent("d_Toolbar Plus@2x", "Add Selected");
             addIcon.tooltip = "Add Selection to Favorites";
 
+            pingIcon = EditorGUIUtility.IconContent("d_search_icon@2x", "Ping Selection");
+            pingIcon.tooltip = "Ping Selection";
+
             // jumpIcon = EditorGUIUtility.IconContent("d_SearchJump Icon", "Jump to Selection");
-            jumpIcon = EditorGUIUtility.IconContent("d_search_icon@2x", "Jump to Selection");
+            jumpIcon = EditorGUIUtility.IconContent("d_UnityEditor.ConsoleWindow@2x", "Jump to Selection");
             jumpIcon.tooltip = "Jump to Selection";
 
             favoriteIcon = EditorGUIUtility.IconContent("d_Favorite Icon", "Favorite");
@@ -143,6 +147,7 @@ namespace Rowlan.QuickNav
                     float right = 0;
 
                     float objectIconWidth = 16;
+                    float pingButtonWidth = 30;
                     float jumpButtonWidth = 30;
                     float favoriteButtonWidth = 30;
                     float deleteButtonWidth = 30;
@@ -154,6 +159,17 @@ namespace Rowlan.QuickNav
                     bool isProjectContext = contextProperty.enumValueIndex == (int)QuickNavItem.Context.Project;
                     UnityEngine.Object currentObject = unityObjectProperty.objectReferenceValue;
 
+                    // ping button
+                    {
+                        width = pingButtonWidth;
+                        left = right + margin; right = left + width;
+                        if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), pingIcon))
+                        {
+                            currentSelectionIndex = index;
+                            JumpToQuickNavItem( false);
+                        }
+                    }
+
                     // jump button
                     {
                         width = jumpButtonWidth;
@@ -161,7 +177,7 @@ namespace Rowlan.QuickNav
                         if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), jumpIcon))
                         {
                             currentSelectionIndex = index;
-                            JumpToQuickNavItem();
+                            JumpToQuickNavItem(true);
                         }
                     }
 
@@ -178,7 +194,7 @@ namespace Rowlan.QuickNav
                         EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), gc);
                     }
 
-                    /*
+                    
                     // object icon
                     {
                         width = objectIconWidth;
@@ -195,15 +211,17 @@ namespace Rowlan.QuickNav
 
                     // object name
                     {
-                        width = 128;
+                        //width = 128;
+                        width = EditorGUIUtility.currentViewWidth - (right + margin) - jumpButtonWidth - favoriteButtonWidth - margin * 3 - 22;
                         left = right + margin; right = left + width;
 
                         string displayName = unityObjectProperty.objectReferenceValue != null ? unityObjectProperty.objectReferenceValue.name : "<invalid>";
+                        
                         EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), displayName);
 
                     }
-                    */
 
+                    /*
                     // object property
                     {
                         // textfield is stretched => calculate it from total length - left position - all the buttons to the right - number of margins ... and the fixed number is just arbitrary
@@ -212,6 +230,7 @@ namespace Rowlan.QuickNav
                         
                         EditorGUI.PropertyField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), unityObjectProperty, GUIContent.none);
                     }
+                    */
 
                     // favorite button
                     {
@@ -287,7 +306,7 @@ namespace Rowlan.QuickNav
                     if (currentSelectionIndex < 0)
                         currentSelectionIndex = 0;
 
-                    JumpToQuickNavItem();
+                    JumpToQuickNavItem( true);
                 }
 
                 if (GUILayout.Button(nextIcon, GUILayout.Width(80), GUILayout.Height(buttonHeight)))
@@ -296,7 +315,7 @@ namespace Rowlan.QuickNav
                     if (currentSelectionIndex < 0)
                         currentSelectionIndex = 0;
 
-                    JumpToQuickNavItem();
+                    JumpToQuickNavItem( true);
 
 
                 }
@@ -350,7 +369,7 @@ namespace Rowlan.QuickNav
         /// <summary>
         /// Get the current quick nav item and jump to it by selecting it
         /// </summary>
-        void JumpToQuickNavItem()
+        void JumpToQuickNavItem( bool openInInspector)
         {
             QuickNavItem quickNavItem = GetCurrentQuickNavItem();
 
@@ -361,11 +380,26 @@ namespace Rowlan.QuickNav
             reorderableList.index = currentSelectionIndex;
             //reorderableList.Select(currentSelectionIndex);
 
-            // selection objects
-            UnityEngine.Object[] objects = new UnityEngine.Object[] { quickNavItem.unityObject };
+            // select the object and open it in the inspector
+            if (openInInspector)
+            {
+                // selection objects
+                UnityEngine.Object[] objects = new UnityEngine.Object[] { quickNavItem.unityObject };
 
-            // select objects
-            Selection.objects = objects;
+                // select objects
+                Selection.objects = objects;
+            }
+            // just select the object, don't open it in the inspector
+            else
+            {
+                
+                EditorGUIUtility.PingObject(quickNavItem.unityObject);
+
+                // alternative: open in application (eg doubleclick)
+                // AssetDatabase.OpenAsset(quickNavItem.unityObject);
+
+            }
+
         }
     }
 }
