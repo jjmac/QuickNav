@@ -134,6 +134,7 @@ namespace Rowlan.QuickNav
 
                     var contextProperty = element.FindPropertyRelative("context");
                     var unityObjectProperty = element.FindPropertyRelative("unityObject");
+                    var objectGuidProperty = element.FindPropertyRelative("objectGuid");
 
                     float margin = 3;
 
@@ -177,8 +178,8 @@ namespace Rowlan.QuickNav
                         EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), gc);
                     }
 
-                    // object icon
                     /*
+                    // object icon
                     {
                         width = objectIconWidth;
                         left = right + margin; right = left + width;
@@ -191,18 +192,25 @@ namespace Rowlan.QuickNav
                         // show icon
                         EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), gc);
                     }
-                    */
 
                     // object name
+                    {
+                        width = 128;
+                        left = right + margin; right = left + width;
+
+                        string displayName = unityObjectProperty.objectReferenceValue != null ? unityObjectProperty.objectReferenceValue.name : "<invalid>";
+                        EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), displayName);
+
+                    }
+                    */
+
+                    // object property
                     {
                         // textfield is stretched => calculate it from total length - left position - all the buttons to the right - number of margins ... and the fixed number is just arbitrary
                         width = EditorGUIUtility.currentViewWidth - (right + margin) - jumpButtonWidth - favoriteButtonWidth - margin * 3 - 22;
                         left = right + margin; right = left + width;
+                        
                         EditorGUI.PropertyField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), unityObjectProperty, GUIContent.none);
-                        /*
-                        string displayName = unityObjectProperty.objectReferenceValue != null ? unityObjectProperty.objectReferenceValue.name : "<invalid>";
-                        EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), displayName);
-                        */
                     }
 
                     // favorite button
@@ -222,6 +230,9 @@ namespace Rowlan.QuickNav
                                 QuickNavItem navItem = new QuickNavItem(currentObject, isProjectContext);
 
                                 editorWindow.AddToFavorites(navItem);
+
+                                EditorUtility.SetDirty(serializedObject.targetObject);
+
                             }
                         }
                         GUI.enabled = guiEnabledPrev;
@@ -234,6 +245,9 @@ namespace Rowlan.QuickNav
                         if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), deleteIcon))
                         {
                             GetQuickNavItemList().RemoveAt(index);
+
+                            EditorUtility.SetDirty(serializedObject.targetObject);
+
                         }
                     }
 
@@ -303,6 +317,8 @@ namespace Rowlan.QuickNav
                 {
                     GetQuickNavItemList().Clear();
                     currentSelectionIndex = 0;
+
+                    EditorUtility.SetDirty(serializedObject.targetObject);
                 }
 
             }

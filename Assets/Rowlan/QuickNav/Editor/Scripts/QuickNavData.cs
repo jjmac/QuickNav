@@ -36,7 +36,7 @@ namespace Rowlan.QuickNav
         public void Reset()
         {
 
-            Debug.Log("Reset");
+            // Debug.Log("Reset");
 
             history = new List<QuickNavItem>();
             favorites = new List<QuickNavItem>();
@@ -44,7 +44,7 @@ namespace Rowlan.QuickNav
 
         public void OnValidate()
         {
-            Debug.Log( "OnValidate " + Time.time);
+            // Debug.Log( "OnValidate " + Time.time);
         }
     }
 }

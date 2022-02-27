@@ -42,6 +42,26 @@ namespace Rowlan.QuickNav
             ScriptableObjectManager<QuickNavData> settingsManager = new ScriptableObjectManager<QuickNavData>(ProjectSetup.SETTINGS_FOLDER, ProjectSetup.SETTINGS_FILENAME);
             quickNavData = settingsManager.GetAsset();
 
+            foreach (QuickNavItem qi in quickNavData.favorites)
+            {
+                if (qi.objectGuid == null)
+                    continue;
+
+                GlobalObjectId id;
+                if (!GlobalObjectId.TryParse(qi.objectGuid, out id))
+                {
+                    Debug.Log("obj is null for " + qi.objectGuid);
+                    continue;
+                }
+
+                Object obj = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id);
+
+                if (obj == null)
+                    continue;
+
+                qi.unityObject = obj;
+            }
+
             serializedObject = new SerializedObject(quickNavData);
 
             // properties
@@ -90,7 +110,6 @@ namespace Rowlan.QuickNav
 
             Startup.Instance.Initialized = true;
         }
-
 
         void OnGUI()
         {
@@ -152,6 +171,9 @@ namespace Rowlan.QuickNav
 
                 // insert new items first
                 quickNavData.history.Insert(0, navItem);
+
+                // persist the changes
+                EditorUtility.SetDirty(quickNavData);
             }
 
         }
@@ -164,6 +186,9 @@ namespace Rowlan.QuickNav
 
                 quickNavData.favorites.Add( navItem);
             }
+
+            // persist the changes
+            EditorUtility.SetDirty(quickNavData);
         }
 
         public QuickNavItem CreateQuickNavItem( UnityEngine.Object unityObject)

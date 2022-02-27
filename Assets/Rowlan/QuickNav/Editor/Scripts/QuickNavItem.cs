@@ -1,4 +1,5 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace Rowlan.QuickNav
@@ -27,11 +28,18 @@ namespace Rowlan.QuickNav
         /// </summary>
         public UnityEngine.Object unityObject;
 
+        /// <summary>
+        /// the 
+        /// </summary>
+        public string objectGuid;
 
         public QuickNavItem(UnityEngine.Object unityObject, bool isProjectContext)
         {
             this.unityObject = unityObject;
             this.context = isProjectContext ? Context.Project : Context.Scene;
+
+            GlobalObjectId globalObjectId = GlobalObjectId.GetGlobalObjectIdSlow(unityObject);
+            objectGuid = globalObjectId.ToString();
         }
 
     }
