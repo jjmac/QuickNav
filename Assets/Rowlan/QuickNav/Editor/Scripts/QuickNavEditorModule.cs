@@ -38,6 +38,9 @@ namespace Rowlan.QuickNav
         private GUIContent deleteIcon;
         private GUIContent clearIcon;
 
+        private GUIContent sceneIcon;
+        private GUIContent projectIcon;
+
 
         // TODO: use only the serializedProperty, don't hand over the quicknavlist
         public QuickNavEditorModule(QuickNavEditorWindow editorWindow, SerializedObject serializedObject, SerializedProperty serializedProperty, List<QuickNavItem> quickNavList, NavigationDirection navigationDirection)
@@ -94,6 +97,13 @@ namespace Rowlan.QuickNav
 
             clearIcon = new GUIContent("Clear");
             clearIcon.tooltip = "Remove all items";
+
+            sceneIcon = EditorGUIUtility.IconContent("d_UnityEditor.SceneHierarchyWindow@2x", "Scene");
+            sceneIcon.tooltip = "Scene";
+
+            projectIcon = EditorGUIUtility.IconContent("d_Project@2x", "Project");
+            projectIcon.tooltip = "Project";
+
         }
 
         private List<QuickNavItem> GetQuickNavItemList()
@@ -122,8 +132,8 @@ namespace Rowlan.QuickNav
                     // Get the currently to be drawn element from YourList
                     var element = serializedProperty.GetArrayElementAtIndex(index);
 
-                    var instanceIdProperty = element.FindPropertyRelative("instanceId");
-                    var nameProperty = element.FindPropertyRelative("name");
+                    var contextProperty = element.FindPropertyRelative("context");
+                    var unityObjectProperty = element.FindPropertyRelative("unityObject");
 
                     float margin = 3;
 
@@ -135,66 +145,100 @@ namespace Rowlan.QuickNav
                     float jumpButtonWidth = 30;
                     float favoriteButtonWidth = 30;
                     float deleteButtonWidth = 30;
+                    float sourceIconWidth = 16;
 
                     // EditorGUI.PropertyField(new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight), instanceIdProperty, GUIContent.none);
 
+                    // get the context and the object
+                    bool isProjectContext = contextProperty.enumValueIndex == (int)QuickNavItem.Context.Project;
+                    UnityEngine.Object currentObject = unityObjectProperty.objectReferenceValue;
+
                     // jump button
-                    width = jumpButtonWidth;
-                    left = right + margin; right = left + width;
-                    if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), jumpIcon))
                     {
-                        currentSelectionIndex = index;
-                        JumpToQuickNavItem();
-                    }
-
-                    // icon
-                    width = objectIconWidth;
-                    left = right + margin; right = left + width;
-
-                    // get the object
-                    UnityEngine.Object currentObject = EditorUtility.InstanceIDToObject(instanceIdProperty.intValue);
-
-                    // create guicontent, but remove the text; we only want the icon
-                    GUIContent gc = EditorGUIUtility.ObjectContent(currentObject, typeof(object));
-                    gc.text = null;
-
-                    // show icon
-                    EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), gc);
-
-                    // object name
-                    // textfield is stretched => calculate it from total length - left position - all the buttons to the right - number of margins ... and the fixed number is just arbitrary
-                    width = EditorGUIUtility.currentViewWidth - (right + margin) - jumpButtonWidth - favoriteButtonWidth - margin * 3 - 22;
-                    left = right + margin; right = left + width;
-                    EditorGUI.PropertyField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), nameProperty, GUIContent.none);
-
-                    // favorite button
-                    bool isFavoritesItem = editorWindow.quickNavData.IsFavoritesItem( instanceIdProperty.intValue);
-
-                    bool guiEnabledPrev = GUI.enabled;
-                    {
-                        // disable the button in case it is already a favorite
-                        GUI.enabled = !isFavoritesItem;
-
-                        width = favoriteButtonWidth;
+                        width = jumpButtonWidth;
                         left = right + margin; right = left + width;
-                        if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), favoriteIcon))
+                        if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), jumpIcon))
                         {
-                            QuickNavItem navItem = new QuickNavItem() { instanceId = instanceIdProperty.intValue, name = nameProperty.stringValue };
-
-                            editorWindow.AddToFavorites(navItem);
+                            currentSelectionIndex = index;
+                            JumpToQuickNavItem();
                         }
                     }
-                    GUI.enabled = guiEnabledPrev;
 
-                    // delete button
-                    width = deleteButtonWidth;
-                    left = right + margin; right = left + width;
-                    if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), deleteIcon))
+                    // source icon: hierarchy or project
                     {
-                        GetQuickNavItemList().RemoveAt(index);
+                        width = sourceIconWidth;
+                        left = right + margin; right = left + width;
+
+                        // create guicontent, but remove the text; we only want the icon
+                        GUIContent gc = isProjectContext ? projectIcon : sceneIcon;
+                        gc.text = null;
+                        
+                        // show icon
+                        EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), gc);
                     }
 
-                    /* instance id; not relevant to show for now
+                    // object icon
+                    /*
+                    {
+                        width = objectIconWidth;
+                        left = right + margin; right = left + width;
+
+
+                        // create guicontent, but remove the text; we only want the icon
+                        GUIContent gc = EditorGUIUtility.ObjectContent(currentObject, typeof(object));
+                        gc.text = null;
+
+                        // show icon
+                        EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), gc);
+                    }
+                    */
+
+                    // object name
+                    {
+                        // textfield is stretched => calculate it from total length - left position - all the buttons to the right - number of margins ... and the fixed number is just arbitrary
+                        width = EditorGUIUtility.currentViewWidth - (right + margin) - jumpButtonWidth - favoriteButtonWidth - margin * 3 - 22;
+                        left = right + margin; right = left + width;
+                        EditorGUI.PropertyField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), unityObjectProperty, GUIContent.none);
+                        /*
+                        string displayName = unityObjectProperty.objectReferenceValue != null ? unityObjectProperty.objectReferenceValue.name : "<invalid>";
+                        EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), displayName);
+                        */
+                    }
+
+                    // favorite button
+                    {
+                        bool isFavoritesItem = editorWindow.quickNavData.IsFavoritesItem(currentObject);
+
+                        bool guiEnabledPrev = GUI.enabled;
+                        {
+                            // disable the button in case it is already a favorite
+                            GUI.enabled = !isFavoritesItem;
+
+                            width = favoriteButtonWidth;
+                            left = right + margin; right = left + width;
+                            if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), favoriteIcon))
+                            {
+
+                                QuickNavItem navItem = new QuickNavItem(currentObject, isProjectContext);
+
+                                editorWindow.AddToFavorites(navItem);
+                            }
+                        }
+                        GUI.enabled = guiEnabledPrev;
+                    }
+
+                    // delete button
+                    {
+                        width = deleteButtonWidth;
+                        left = right + margin; right = left + width;
+                        if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), deleteIcon))
+                        {
+                            GetQuickNavItemList().RemoveAt(index);
+                        }
+                    }
+
+                    // instance id; not relevant to show for now
+                    /*
                     width = 50;
                     left = right + margin; right = left + width;
                     EditorGUI.BeginDisabledGroup(true);
@@ -302,7 +346,7 @@ namespace Rowlan.QuickNav
             //reorderableList.Select(currentSelectionIndex);
 
             // selection objects
-            UnityEngine.Object[] objects = new UnityEngine.Object[] { EditorUtility.InstanceIDToObject(quickNavItem.instanceId) };
+            UnityEngine.Object[] objects = new UnityEngine.Object[] { quickNavItem.unityObject };
 
             // select objects
             Selection.objects = objects;

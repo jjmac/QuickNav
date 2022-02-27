@@ -5,11 +5,14 @@ namespace Rowlan.QuickNav
 {
     public class QuickNavEditorWindow : EditorWindow
     {
-        [MenuItem("Tools/Rowlan/Quick Nav %h")]
+        [MenuItem(ProjectSetup.MENU)]
         static void CreateWindow()
         {
             QuickNavEditorWindow wnd = EditorWindow.GetWindow<QuickNavEditorWindow>();
             wnd.titleContent.text = "Quick Nav";
+
+            wnd.position = new Rect(0, 0, 600, 1000);
+            //wnd.Close();
         }
 
         private enum QuickNavTab
@@ -24,9 +27,8 @@ namespace Rowlan.QuickNav
         private QuickNavEditorWindow editorWindow;
 
         [SerializeField]
-        public QuickNavData quickNavData = new QuickNavData();
+        public QuickNavData quickNavData;
 
-        private ScriptableObject scriptableObject;
         private SerializedObject serializedObject;
 
         private QuickNavEditorModule historyModule;
@@ -37,15 +39,17 @@ namespace Rowlan.QuickNav
             editorWindow = this;
 
             // initialize data
-            scriptableObject = this;
-            serializedObject = new SerializedObject(scriptableObject);
+            ScriptableObjectManager<QuickNavData> settingsManager = new ScriptableObjectManager<QuickNavData>(ProjectSetup.SETTINGS_FOLDER, ProjectSetup.SETTINGS_FILENAME);
+            quickNavData = settingsManager.GetAsset();
+
+            serializedObject = new SerializedObject(quickNavData);
 
             // properties
-            SerializedProperty historyProperty = serializedObject.FindProperty("quickNavData.history");
-            SerializedProperty favoritesProperty = serializedObject.FindProperty("quickNavData.favorites");
+            SerializedProperty historyProperty = serializedObject.FindProperty("history"); // history: might need the "quickNavData." prefix depending on what is the parent
+            SerializedProperty favoritesProperty = serializedObject.FindProperty("favorites"); // favorites: might need the "quickNavData." prefix depending on what is the parent
 
             // unity startup, first access
-            if( !Startup.Instance.Initialized)
+            if ( !Startup.Instance.Initialized)
             {
                 // clear history at startup
                 quickNavData.history.Clear();
@@ -128,23 +132,23 @@ namespace Rowlan.QuickNav
                 QuickNavItem quickNavItem = historyModule.GetCurrentQuickNavItem();
                 if (quickNavItem != null)
                 {
-                    if (quickNavItem.instanceId == Selection.instanceIDs[0])
+                    if (quickNavItem.unityObject == Selection.objects[0])
                         return;
                 }
             }
 
             // ensure collection doesn't exceed max size
-            if (quickNavData.history.Count >= ProjectSettings.HISTORY_ITEMS_MAX)
+            if (quickNavData.history.Count >= QuickNavData.LIST_ITEMS_MAX)
             {
-                quickNavData.history.RemoveRange(ProjectSettings.HISTORY_ITEMS_MAX - 1, quickNavData.history.Count - ProjectSettings.HISTORY_ITEMS_MAX + 1);
+                quickNavData.history.RemoveRange(QuickNavData.LIST_ITEMS_MAX - 1, quickNavData.history.Count - QuickNavData.LIST_ITEMS_MAX + 1);
             }
 
             // single item selection / navigation => add to history
-            if (Selection.instanceIDs.Length == 1)
+            if (Selection.objects.Length == 1)
             {
-                int selectedInstanceId = Selection.instanceIDs[0];
+                UnityEngine.Object selectedUnityObject = Selection.objects[0];
 
-                QuickNavItem navItem = CreateQuickNavItem(selectedInstanceId);
+                QuickNavItem navItem = CreateQuickNavItem(selectedUnityObject);
 
                 // insert new items first
                 quickNavData.history.Insert(0, navItem);
@@ -154,21 +158,22 @@ namespace Rowlan.QuickNav
 
         public void AddSelectedToFavorites()
         {
-            foreach( int instanceId in Selection.instanceIDs)
+            foreach( UnityEngine.Object unityObject in Selection.objects)
             {
-                QuickNavItem navItem = CreateQuickNavItem(instanceId);
+                QuickNavItem navItem = CreateQuickNavItem(unityObject);
 
                 quickNavData.favorites.Add( navItem);
             }
         }
 
-        public QuickNavItem CreateQuickNavItem( int instanceId)
+        public QuickNavItem CreateQuickNavItem( UnityEngine.Object unityObject)
         {
-            // get the object from the selection
-            // we could use Selection.objects as well, but this way it's more general purpose in case we persist a list later (eg favorites)
-            UnityEngine.Object selectedObject = EditorUtility.InstanceIDToObject(instanceId);
+            string guid;
+            long localId;
 
-            QuickNavItem navItem = new QuickNavItem() { instanceId = instanceId, name = selectedObject.name };
+            bool isProjectContext = AssetDatabase.TryGetGUIDAndLocalFileIdentifier(unityObject, out guid, out localId);
+
+            QuickNavItem navItem = new QuickNavItem(unityObject, isProjectContext);
 
             return navItem;
         }
