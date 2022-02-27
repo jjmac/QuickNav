@@ -7,10 +7,10 @@ namespace Rowlan.QuickNav
 {
     public class QuickNavEditorModule
     {
-        public enum NavigationDirection
+        public enum ModuleType
         {
-            LeftRight,
-            UpDown,
+            History,
+            Favorites,
         }
 
         private QuickNavEditorWindow editorWindow;
@@ -27,32 +27,21 @@ namespace Rowlan.QuickNav
         public string headerText = "";
         public bool reorderEnabled = false;
         public bool addSelectedEnabled = false;
-        public NavigationDirection navigationDirection = NavigationDirection.LeftRight;
+        public ModuleType moduleType;
 
+        // icons depending on the navigation direction
         private GUIContent previousIcon;
         private GUIContent nextIcon;
-        private GUIContent addIcon;
-
-        private GUIContent jumpIcon;
-        private GUIContent favoriteIcon;
-        private GUIContent deleteIcon;
-        private GUIContent clearIcon;
-
-        private GUIContent sceneIcon;
-        private GUIContent projectIcon;
-
-        private GUIStyle objectButtonStyle;
-
 
         // TODO: use only the serializedProperty, don't hand over the quicknavlist
-        public QuickNavEditorModule(QuickNavEditorWindow editorWindow, SerializedObject serializedObject, SerializedProperty serializedProperty, List<QuickNavItem> quickNavList, NavigationDirection navigationDirection)
+        public QuickNavEditorModule(QuickNavEditorWindow editorWindow, SerializedObject serializedObject, SerializedProperty serializedProperty, List<QuickNavItem> quickNavList, ModuleType moduleType)
         {
             this.editorWindow = editorWindow;
             this.serializedObject = serializedObject;
             this.serializedProperty = serializedProperty;
             this.quickNavList = quickNavList;
 
-            this.navigationDirection = navigationDirection;
+            this.moduleType = moduleType;
 
             // setup styles, icons etc
             SetupStyles();
@@ -63,49 +52,20 @@ namespace Rowlan.QuickNav
         /// </summary>
         private void SetupStyles()
         {
-            switch (navigationDirection)
+            switch (moduleType)
             {
-                case NavigationDirection.LeftRight:
-                    previousIcon = EditorGUIUtility.IconContent("d_scrollleft_uielements@2x", "Previous");
-                    previousIcon.tooltip = "Jump to Previous";
-
-                    nextIcon = EditorGUIUtility.IconContent("d_scrollright_uielements@2x", "Next");
-                    nextIcon.tooltip = "Jump to Next";
+                case ModuleType.History:
+                    previousIcon = GUIStyles.LeftIcon;
+                    nextIcon = GUIStyles.RightIcon;
                     break;
 
-                case NavigationDirection.UpDown:
-                    previousIcon = EditorGUIUtility.IconContent("d_ProfilerTimelineDigDownArrow@2x", "Previous");
-                    previousIcon.tooltip = "Jump to Previous";
-
-                    nextIcon = EditorGUIUtility.IconContent("d_ProfilerTimelineRollUpArrow@2x", "Next");
-                    nextIcon.tooltip = "Jump to Next";
+                case ModuleType.Favorites:
+                    previousIcon = GUIStyles.DownIcon;
+                    nextIcon = GUIStyles.UpIcon; 
                     break;
 
-                default: throw new System.Exception($"Unsupported direction: {navigationDirection}");
+                default: throw new System.Exception($"Unsupported module type: {moduleType}");
             }
-
-            addIcon = EditorGUIUtility.IconContent("d_Toolbar Plus@2x", "Add Selected");
-            addIcon.tooltip = "Add Selection to Favorites";
-
-            // jumpIcon = EditorGUIUtility.IconContent("d_SearchJump Icon", "Jump to Selection");
-            jumpIcon = EditorGUIUtility.IconContent("d_search_icon@2x", "Jump to Selection");
-            jumpIcon.tooltip = "Jump to Selection";
-
-            favoriteIcon = EditorGUIUtility.IconContent("d_Favorite Icon", "Favorite");
-            favoriteIcon.tooltip = "Add to Favorites";
-
-            deleteIcon = EditorGUIUtility.IconContent("d_TreeEditor.Trash", "Delete");
-            deleteIcon.tooltip = "Delete";
-
-            clearIcon = new GUIContent("Clear");
-            clearIcon.tooltip = "Remove all items";
-
-            sceneIcon = EditorGUIUtility.IconContent("d_UnityEditor.SceneHierarchyWindow@2x", "Scene");
-            sceneIcon.tooltip = "Scene";
-
-            projectIcon = EditorGUIUtility.IconContent("d_Project@2x", "Project");
-            projectIcon.tooltip = "Project";
-
         }
 
         private List<QuickNavItem> GetQuickNavItemList()
@@ -144,8 +104,8 @@ namespace Rowlan.QuickNav
                     float width = 0;
                     float right = 0;
 
-                    float objectIconWidth = 16;
-                    float pingButtonWidth = 30;
+                    // float objectIconWidth = 16;
+                    // float pingButtonWidth = 30;
                     float jumpButtonWidth = 30;
                     float favoriteButtonWidth = 30;
                     float deleteButtonWidth = 30;
@@ -164,7 +124,7 @@ namespace Rowlan.QuickNav
                         left = right + margin; right = left + width;
 
                         // create guicontent, but remove the text; we only want the icon
-                        GUIContent gc = isProjectContext ? projectIcon : sceneIcon;
+                        GUIContent gc = isProjectContext ? GUIStyles.ProjectIcon : GUIStyles.SceneIcon;
                         gc.text = null;
 
                         // show icon
@@ -175,15 +135,12 @@ namespace Rowlan.QuickNav
                     {
                         width = jumpButtonWidth;
                         left = right + margin; right = left + width;
-                        if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), jumpIcon))
+                        if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), GUIStyles.JumpIcon))
                         {
                             currentSelectionIndex = index;
                             JumpToQuickNavItem(false);
                         }
                     }
-
-
-                    
 
                     // object icon
                     /*
@@ -204,7 +161,8 @@ namespace Rowlan.QuickNav
                     // object name
                     {
                         //width = 128;
-                        width = EditorGUIUtility.currentViewWidth - (right + margin) - jumpButtonWidth - favoriteButtonWidth - margin * 3 - 22;
+                        width = EditorGUIUtility.currentViewWidth - (right + margin) - jumpButtonWidth - margin * 3 - 22;
+                        width -= moduleType == ModuleType.History ? favoriteButtonWidth : 10; // favorites button isn't shown in favorites tab; however there's a drag handle and we don't want the delete button cut off when the scrollbars appear => use arbitrary value (need to find out scrollbar width later)
                         left = right + margin; right = left + width;
 
                         string displayName = unityObjectProperty.objectReferenceValue != null ? unityObjectProperty.objectReferenceValue.name : "<invalid>";
@@ -231,6 +189,7 @@ namespace Rowlan.QuickNav
                     */
 
                     // favorite button
+                    if( moduleType == ModuleType.History)
                     {
                         bool isFavoritesItem = editorWindow.quickNavData.IsFavoritesItem(currentObject);
 
@@ -241,7 +200,7 @@ namespace Rowlan.QuickNav
 
                             width = favoriteButtonWidth;
                             left = right + margin; right = left + width;
-                            if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), favoriteIcon))
+                            if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), GUIStyles.FavoriteIcon))
                             {
 
                                 QuickNavItem navItem = new QuickNavItem(currentObject, isProjectContext);
@@ -259,7 +218,7 @@ namespace Rowlan.QuickNav
                     {
                         width = deleteButtonWidth;
                         left = right + margin; right = left + width;
-                        if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), deleteIcon))
+                        if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), GUIStyles.DeleteIcon))
                         {
                             GetQuickNavItemList().RemoveAt(index);
 
@@ -323,14 +282,14 @@ namespace Rowlan.QuickNav
                 if(addSelectedEnabled)
                 {
 
-                    if (GUILayout.Button(addIcon, GUILayout.Width(60), GUILayout.Height(buttonHeight)))
+                    if (GUILayout.Button(GUIStyles.AddIcon, GUILayout.Width(60), GUILayout.Height(buttonHeight)))
                     {
                         editorWindow.AddSelectedToFavorites();
                     }
 
                 }
 
-                if (GUILayout.Button(clearIcon, GUILayout.Height(buttonHeight)))
+                if (GUILayout.Button(GUIStyles.ClearIcon, GUILayout.Height(buttonHeight)))
                 {
                     GetQuickNavItemList().Clear();
                     currentSelectionIndex = 0;

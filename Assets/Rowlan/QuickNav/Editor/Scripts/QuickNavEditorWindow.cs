@@ -89,7 +89,7 @@ namespace Rowlan.QuickNav
             #region Modules
 
             // history
-            historyModule = new QuickNavEditorModule(this, serializedObject, historyProperty, editorWindow.quickNavData.history, QuickNavEditorModule.NavigationDirection.LeftRight)
+            historyModule = new QuickNavEditorModule(this, serializedObject, historyProperty, editorWindow.quickNavData.history, QuickNavEditorModule.ModuleType.History)
             {
                 headerText = "History",
                 reorderEnabled = false,
@@ -98,7 +98,7 @@ namespace Rowlan.QuickNav
             historyModule.OnEnable();
 
             // favorites
-            favoritesModule = new QuickNavEditorModule(this, serializedObject, favoritesProperty, editorWindow.quickNavData.favorites, QuickNavEditorModule.NavigationDirection.UpDown)
+            favoritesModule = new QuickNavEditorModule(this, serializedObject, favoritesProperty, editorWindow.quickNavData.favorites, QuickNavEditorModule.ModuleType.Favorites)
             {
                 headerText = "Favorites",
                 reorderEnabled = true,
