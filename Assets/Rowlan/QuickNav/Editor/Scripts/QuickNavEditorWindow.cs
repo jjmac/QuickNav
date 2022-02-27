@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Rowlan.QuickNav
 {
@@ -42,15 +43,7 @@ namespace Rowlan.QuickNav
             ScriptableObjectManager<QuickNavData> settingsManager = new ScriptableObjectManager<QuickNavData>(ProjectSetup.SETTINGS_FOLDER, ProjectSetup.SETTINGS_FILENAME);
             quickNavData = settingsManager.GetAsset();
 
-            // update history and favorites using the object guid
-            // this may become necessary after a restart of the editor
-            quickNavData.Refresh();
-
             serializedObject = new SerializedObject(quickNavData);
-
-            // properties
-            SerializedProperty historyProperty = serializedObject.FindProperty("history"); // history: might need the "quickNavData." prefix depending on what is the parent
-            SerializedProperty favoritesProperty = serializedObject.FindProperty("favorites"); // favorites: might need the "quickNavData." prefix depending on what is the parent
 
             // unity startup, first access
             if ( !Startup.Instance.Initialized)
@@ -69,6 +62,14 @@ namespace Rowlan.QuickNav
                     //serializedObject.Update();
                 }
             }
+
+            // update history and favorites using the object guid
+            // this may become necessary after a restart of the editor
+            quickNavData.Refresh();
+
+            // properties
+            SerializedProperty historyProperty = serializedObject.FindProperty("history"); // history: might need the "quickNavData." prefix depending on what is the parent
+            SerializedProperty favoritesProperty = serializedObject.FindProperty("favorites"); // favorites: might need the "quickNavData." prefix depending on what is the parent
 
             #region Modules
 
@@ -102,7 +103,30 @@ namespace Rowlan.QuickNav
             OnSelectionChange();
 
             Startup.Instance.Initialized = true;
+
+            // hook into the scene change for refresh of the objects when another scene gets loaded
+            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= SceneOpenedCallback;
+            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened += SceneOpenedCallback;
         }
+
+        void OnDisable()
+        {
+            // remove scene change hook
+            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= SceneOpenedCallback;
+        }
+
+        /// <summary>
+        /// Scene change handler
+        /// </summary>
+        /// <param name="_scene"></param>
+        /// <param name="_mode"></param>
+        void SceneOpenedCallback(Scene _scene, UnityEditor.SceneManagement.OpenSceneMode _mode)
+        {
+            // update history and favorites using the object guid
+            // this may become necessary after a restart of the editor
+            quickNavData.Refresh();
+        }
+
 
         void OnGUI()
         {
