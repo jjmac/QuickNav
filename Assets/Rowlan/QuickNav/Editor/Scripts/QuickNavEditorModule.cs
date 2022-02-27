@@ -33,7 +33,6 @@ namespace Rowlan.QuickNav
         private GUIContent nextIcon;
         private GUIContent addIcon;
 
-        private GUIContent pingIcon;
         private GUIContent jumpIcon;
         private GUIContent favoriteIcon;
         private GUIContent deleteIcon;
@@ -41,6 +40,8 @@ namespace Rowlan.QuickNav
 
         private GUIContent sceneIcon;
         private GUIContent projectIcon;
+
+        private GUIStyle objectButtonStyle;
 
 
         // TODO: use only the serializedProperty, don't hand over the quicknavlist
@@ -86,11 +87,8 @@ namespace Rowlan.QuickNav
             addIcon = EditorGUIUtility.IconContent("d_Toolbar Plus@2x", "Add Selected");
             addIcon.tooltip = "Add Selection to Favorites";
 
-            pingIcon = EditorGUIUtility.IconContent("d_search_icon@2x", "Ping Selection");
-            pingIcon.tooltip = "Ping Selection";
-
             // jumpIcon = EditorGUIUtility.IconContent("d_SearchJump Icon", "Jump to Selection");
-            jumpIcon = EditorGUIUtility.IconContent("d_UnityEditor.ConsoleWindow@2x", "Jump to Selection");
+            jumpIcon = EditorGUIUtility.IconContent("d_search_icon@2x", "Jump to Selection");
             jumpIcon.tooltip = "Jump to Selection";
 
             favoriteIcon = EditorGUIUtility.IconContent("d_Favorite Icon", "Favorite");
@@ -159,15 +157,18 @@ namespace Rowlan.QuickNav
                     bool isProjectContext = contextProperty.enumValueIndex == (int)QuickNavItem.Context.Project;
                     UnityEngine.Object currentObject = unityObjectProperty.objectReferenceValue;
 
-                    // ping button
+
+                    // context icon: scene or project
                     {
-                        width = pingButtonWidth;
+                        width = sourceIconWidth;
                         left = right + margin; right = left + width;
-                        if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), pingIcon))
-                        {
-                            currentSelectionIndex = index;
-                            JumpToQuickNavItem( false);
-                        }
+
+                        // create guicontent, but remove the text; we only want the icon
+                        GUIContent gc = isProjectContext ? projectIcon : sceneIcon;
+                        gc.text = null;
+
+                        // show icon
+                        EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), gc);
                     }
 
                     // jump button
@@ -177,25 +178,15 @@ namespace Rowlan.QuickNav
                         if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), jumpIcon))
                         {
                             currentSelectionIndex = index;
-                            JumpToQuickNavItem(true);
+                            JumpToQuickNavItem(false);
                         }
                     }
 
-                    // source icon: hierarchy or project
-                    {
-                        width = sourceIconWidth;
-                        left = right + margin; right = left + width;
-
-                        // create guicontent, but remove the text; we only want the icon
-                        GUIContent gc = isProjectContext ? projectIcon : sceneIcon;
-                        gc.text = null;
-                        
-                        // show icon
-                        EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), gc);
-                    }
 
                     
+
                     // object icon
+                    /*
                     {
                         width = objectIconWidth;
                         left = right + margin; right = left + width;
@@ -208,6 +199,7 @@ namespace Rowlan.QuickNav
                         // show icon
                         EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), gc);
                     }
+                    */
 
                     // object name
                     {
@@ -216,9 +208,15 @@ namespace Rowlan.QuickNav
                         left = right + margin; right = left + width;
 
                         string displayName = unityObjectProperty.objectReferenceValue != null ? unityObjectProperty.objectReferenceValue.name : "<invalid>";
-                        
-                        EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), displayName);
 
+                        //EditorGUI.LabelField(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), displayName);
+                        GUIContent objectContent = EditorGUIUtility.ObjectContent(currentObject, typeof(object));
+
+                        if (GUI.Button(new Rect(rect.x + left, rect.y + margin, width, EditorGUIUtility.singleLineHeight), objectContent, GUIStyles.ObjectButtonStyle))
+                        {
+                            currentSelectionIndex = index;
+                            JumpToQuickNavItem(true);
+                        }
                     }
 
                     /*
