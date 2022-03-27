@@ -31,7 +31,7 @@ Supported Unity versions:
 
 In Unity every now and then you have to switch back and forth between assets in order to configure them interdependently. Be it because of texture assignment, material assignment, you name it. 
 With 2 assets you can help yourself with 2 inspectors and locking one. However that's already very tedious, limiting and will get you only so far. Another thing is that you occasionally want to switch back in history. 
-Just like it's common in modern browsers. Besides Unity internal favorites mechanism is very limited as well.
+Just like it's common in modern browsers. Besides Unity's own internal favorites mechanism is very limited as well.
 
 So I created this tool to see the navigation history and in addition to that store some history items or currently selected items in a favorites list.
 
