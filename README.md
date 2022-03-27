@@ -2,7 +2,9 @@
 
 ## Introduction
 
-QuickNav allows you to switch back and forth in your navigation history. You can record history items or current selections as favorites and jump to them or open them directly in the inspector. This works for the Scene as well as the Project.
+QuickNav allows you to switch back and forth in your navigation history. You can record history items or current selections as favorites and jump to them or open them directly in the inspector. 
+
+This works for the Scene as well as the Project.
 
 ##### Example
 
@@ -31,9 +33,12 @@ Supported Unity versions:
 
 In Unity every now and then you have to switch back and forth between assets in order to configure them interdependently. Be it because of texture assignment, material assignment, you name it. 
 With 2 assets you can help yourself with 2 inspectors and locking one. However that's already very tedious, limiting and will get you only so far. Another thing is that you occasionally want to switch back in history. 
-Just like it's common in modern browsers. Besides Unity's own internal favorites mechanism is very limited as well.
+Just like it's common in modern browsers. The Unity Editor doesn't have that feature yet. 
+Besides Unity's own internal favorites mechanism is very limited as well.
 
 So I created this tool to see the navigation history and in addition to that store some history items or currently selected items in a favorites list.
+
+I created this tool for my personal workflow in order to save time and mouse clicks. I thought I'd share in case some of you guys have use for this as well.
 
 ## Features
 
@@ -69,9 +74,9 @@ The Folder Structure pane isn't used in QuickNav, only the Detail pane.
 
 ##### What this is not
 
-This isn't a full-featured history and bookmark manager like it's common in modern browser. One would require tree management for that. I leave that to Unity, such a feature has been long overdue. This is just a means to help you save clicks while browsing around in your project. 
+This isn't a full-featured history and bookmark manager like it's common in modern browsers. One would require tree management for that. I leave that to Unity, such a feature has been long overdue. This is just a means to help you save time and clicks while browsing around in your project. 
 
-By the way, the maximum history item count is 20 and stored in the preferences file:
+By the way, the maximum history item count is 20 and stored in the QuickNav preferences file:
 
   `Assets/Rowlan/QuickNav/Preferences.asset`
 
