@@ -52,8 +52,6 @@ Open QuickNav:
 
 ![Menu](https://user-images.githubusercontent.com/10963432/160269678-64683427-491a-4ccc-ae07-fd6df418d7df.png)
 
-The keybind for it is Ctrl+H (H for History).
-
 Use the arrow keys for navigation. The star for favoriting an item. Click on the magnifying glass to Ping an item. Click the Icon/Name button to open the item in the Inspector.
 
 History:
@@ -71,11 +69,9 @@ The Folder Structure pane isn't used in QuickNav, only the Detail pane.
 
 ##### What this is not
 
-This isn't a full-featured history and bookmark manager like it's common in modern browser. I leave that to Unity, such a feature has been long overdue. 
+This isn't a full-featured history and bookmark manager like it's common in modern browser. One would require tree management for that. I leave that to Unity, such a feature has been long overdue. This is just a means to help you save clicks while browsing around in your project. 
 
-This is just a means to help you save clicks while browsing around in your project. 
-
-By the way, the history item limit is 20 and stored in the preferences file:
+By the way, the maximum history item count is 20 and stored in the preferences file:
 
   `Assets/Rowlan/QuickNav/Preferences.asset`
 
